@@ -28,11 +28,13 @@
     "@prisma/client": "^6.15.0",
     "@prisma/extension-accelerate": "^2.0.2",
     "axios": "^1.11.0",
+    "bcrypt": "^6.0.0",
     "concurrently": "^9.2.1",
     "express": "^5.1.0",
     "npx": "^10.2.2"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^24.3.0",
