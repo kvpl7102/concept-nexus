@@ -4,6 +4,9 @@
   "description": "A full-stack web application that serves as an interactive portal to the ConceptNet knowledge graph, featuring a RESTful API and a dynamic front-end with educational games. This project is a complete rebuild of a university assignment, focusing on modern development practices, a decoupled architecture, and a professional code structure.",
   "main": "index.ts",
   "type": "module",
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "scripts": {
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\" ",
     "build": "tsc",
@@ -24,6 +27,7 @@
   "dependencies": {
     "@prisma/client": "^6.15.0",
     "@prisma/extension-accelerate": "^2.0.2",
+    "axios": "^1.11.0",
     "concurrently": "^9.2.1",
     "express": "^5.1.0",
     "npx": "^10.2.2"
