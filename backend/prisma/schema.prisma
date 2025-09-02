@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  login     String   @unique
+  password  String   // We will store a hashed password
+  score     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+// Model for a  unique concept 
+model Concept {
+  id    Int    @id @default(autoincrement())
+  uri   String @unique // The full ConceptNet URI, e.g., /c/en/cat
+  label String // The human-readable label, e.g., "cat"
+  lang  String // The language code, e.g., "en"
+}
+
+// Model for a unique relation
+model Relation {
+  id    Int    @id @default(autoincrement())
+  uri   String @unique // The full ConceptNet URI, e.g., /r/IsA
+  label String // The human-readable label, e.g., "IsA"
+}
+
+// Model to store the facts collected from ConceptNet
+model Fact {
+  id         Int      @id @default(autoincrement())
+  startUri   String   // e.g., /c/en/cat
+  relationUri String  // e.g., /r/IsA
+  endUri     String   // e.g., /c/en/animal
+  createdAt  DateTime @default(now())
+}

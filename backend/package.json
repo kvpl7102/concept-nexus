@@ -22,6 +22,8 @@
   },
   "homepage": "https://github.com/kvpl7102/concept-nexus#readme",
   "dependencies": {
+    "@prisma/client": "^6.15.0",
+    "@prisma/extension-accelerate": "^2.0.2",
     "concurrently": "^9.2.1",
     "express": "^5.1.0",
     "npx": "^10.2.2"
