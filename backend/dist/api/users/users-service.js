@@ -59,4 +59,16 @@ export const loginUser = async (login, password) => {
     });
     return token;
 };
+/**
+ * Retrieves a user by ID from the database.
+ * @param id - The ID of the user to fetch.
+ * @returns The user object, without the password, if found. Otherwise, null.
+ */
+export const getUserById = async (id) => {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user)
+        return null;
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+};
 //# sourceMappingURL=users-service.js.map

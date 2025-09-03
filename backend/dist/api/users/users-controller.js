@@ -1,4 +1,4 @@
-import { createUser, loginUser } from './users-service.js';
+import { createUser, loginUser, getUserById } from './users-service.js';
 /**
  * Handles the HTTP request to create a new user.
  */
@@ -36,5 +36,18 @@ export const handleLoginUser = async (req, res) => {
     catch (error) {
         res.status(500).json({ message: 'An internal server error occurred' });
     }
+};
+/**
+ * Handles the HTTP request for retrieving the logged-in user's profile.
+ * Assumes that the JWT middleware has already verified the user's identity
+ * and attached the user object to the request object as `req.user`.
+ */
+export const handleGetUserProfile = async (req, res) => {
+    const userId = req.user.id;
+    const user = await getUserById(userId);
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json(user);
 };
 //# sourceMappingURL=users-controller.js.map
