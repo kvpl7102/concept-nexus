@@ -1,22 +1,40 @@
+import axios from 'axios';
 import { DbStats, UserCredentials, AuthResponse, User } from '../lib/types';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+if (!API_URL) {
+    throw new Error("API URL is not configured. Please check your .env.local file.");
+}
+
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Add the auth token to requests
+api.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
 
 /**
  * Fetches database statistics from the backend API.
  * @returns Promise<DbStats> - The database statistics
  */
 export async function getStats(): Promise<DbStats> {
-    if (!API_URL) {
-        throw new Error("API URL is not configured. Please check your .env.local file.");
-    }
-  
-    const response = await fetch(`${API_URL}/stats`);
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch stats: ${response.statusText}`);
-  }
-
-  return response.json();
+  const response = await api.get('/stats');
+  return response.data;
 }
 
 /**
@@ -25,18 +43,8 @@ export async function getStats(): Promise<DbStats> {
  * @returns A promise that resolves to the authentication response (including the token).
  */
 export async function loginUser(credentials: UserCredentials): Promise<AuthResponse> {
-  if (!API_URL) throw new Error("API URL is not configured.");
-  const response = await fetch(`${API_URL}/users/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(credentials),
-  });
-
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.message || 'Login failed.');
-  }
-  return data;
+  const response = await api.post('/users/login', credentials);
+  return response.data;
 }
 
 /**
@@ -45,36 +53,15 @@ export async function loginUser(credentials: UserCredentials): Promise<AuthRespo
  * @returns A promise that resolves to the newly created user object.
  */
 export async function registerUser(credentials: UserCredentials): Promise<User> {
-  if (!API_URL) throw new Error("API URL is not configured.");
-  const response = await fetch(`${API_URL}/users`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(credentials),
-  });
-
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.message || 'Registration failed.');
-  }
-  return data;
+  const response = await api.post('/users', credentials);
+  return response.data;
 }
 
 /**
  * Fetches the current user's profile using a JWT.
- * @param token - The user's authentication token.
  * @returns A promise that resolves to the user object.
  */
-export async function getUserProfile(token: string): Promise<User> {
-  if (!API_URL) throw new Error("API URL is not configured.");
-
-  const response = await fetch(`${API_URL}/users/me`, {
-    headers: {
-      'Authorization': `Bearer ${token}`, // <-- This is how we send the token
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch user profile.");
-  }
-  return response.json();
+export async function getUserProfile(): Promise<User> {
+  const response = await api.get('/users/me');
+  return response.data;
 }
