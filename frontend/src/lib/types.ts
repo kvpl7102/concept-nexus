@@ -24,3 +24,31 @@ export interface User {
     score: number;
     createdAt: string;
 }
+// Type for a ConceptNet edge
+export interface ConceptNetEdge {
+    '@id': string;
+    start: {
+        '@id': string;
+        label: string;
+        language: string;
+    };
+    end: {
+        '@id': string;
+        label: string;
+        language: string;
+    };
+    rel: {
+        '@id': string;
+        label: string;
+    };
+    weight: number;
+}
+
+// Type for the ConceptNet response 
+export interface ConceptNetResponse {
+    edges: ConceptNetEdge[];
+    view: {
+        '@id': string;
+        nextPage?: string;
+    };
+}

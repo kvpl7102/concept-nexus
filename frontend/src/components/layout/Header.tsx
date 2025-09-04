@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext'; 
+import { useAuth } from '@/context/AuthContext';
 import styles from './Header.module.css';
 
 export default function Header() {
@@ -17,6 +17,7 @@ export default function Header() {
           <span>Loading...</span>
         ) : user ? (
           <>
+            <Link href="/browse" className={styles.navLink}>Browse</Link>
             <span>Welcome, {user.login}!</span>
             <button onClick={logout} className={styles.navLinkButton}>Logout</button>
           </>
