@@ -1,0 +1,15 @@
+    .container {
+  margin-top: 2rem;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.error {
+  color: red;
+}
+
+.statsList {
+  list-style: none;
+  padding: 0;
+}
