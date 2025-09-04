@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { DbStats, UserCredentials, AuthResponse, User } from '../lib/types';
+import { DbStats, UserCredentials, AuthResponse, User, ConceptNetResponse } from '../lib/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -64,4 +64,26 @@ export async function registerUser(credentials: UserCredentials): Promise<User> 
 export async function getUserProfile(): Promise<User> {
   const response = await api.get('/users/me');
   return response.data;
+}
+
+/**
+ * Searches for a concept via the backend proxy to the ConceptNet API.
+ * @param concept - The concept to search for (e.g., 'cat').
+ * @param token - The user's JWT for authentication.
+ * @param lang - The language code (defaults to 'en').
+ * @returns A promise that resolves to the ConceptNet API response.
+ */
+export async function searchConcept(concept: string, token: string, lang: string = 'en'): Promise<ConceptNetResponse> {
+  if (!API_URL) throw new Error("API URL is not configured.");
+
+  const response = await fetch(`${API_URL}/concept/${lang}/${concept}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`, 
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to search for concept.");
+  }
+  return response.json();
 }
