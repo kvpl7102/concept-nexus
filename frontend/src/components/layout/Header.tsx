@@ -18,6 +18,7 @@ export default function Header() {
         ) : user ? (
           <>
             <Link href="/browse" className={styles.navLink}>Browse</Link>
+            <Link href="/game/who-am-i" className={styles.navLink}>Play Game</Link> {/* New Link */}
             <span>Welcome, {user.login}!</span>
             <button onClick={logout} className={styles.navLinkButton}>Logout</button>
           </>

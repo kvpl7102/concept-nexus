@@ -52,3 +52,11 @@ export interface ConceptNetResponse {
         nextPage?: string;
     };
 }
+
+// Type for a Concept object 
+export interface Concept {
+    id: number;
+    uri: string;
+    label: string;
+    lang: string;
+}
