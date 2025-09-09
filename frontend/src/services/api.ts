@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { DbStats, UserCredentials, AuthResponse, User, ConceptNetResponse } from '../lib/types';
+import { DbStats, UserCredentials, AuthResponse, User, ConceptNetResponse, Concept } from '../lib/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -87,3 +87,25 @@ export async function searchConcept(concept: string, token: string, lang: string
   }
   return response.json();
 }
+
+/**
+ * Starts a new "Who Am I?" game by fetching a random concept from the backend.
+ * @param token - The user's JWT for authentication.
+ * @returns A promise that resolves to an object containing the concept to guess.
+ */
+export async function startWhoAmIGame(token: string): Promise<{ conceptToGuess: Concept }> {
+  if (!API_URL) throw new Error("API URL is not configured.");
+
+  const response = await fetch(`${API_URL}/game/who-am-i/start`, {
+    method: 'POST', 
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to start a new game.");
+  }
+  return response.json();
+}
+
