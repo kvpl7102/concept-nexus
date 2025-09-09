@@ -110,6 +110,8 @@ Make sure you have the following installed on your machine:
 
 The REST API is documented using Swagger. Once the backend server is running, the interactive documentation can be accessed at:
 [http://localhost:5001/api-docs](http://localhost:5001/api-docs)
+<img width="1919" height="932" alt="image" src="https://github.com/user-attachments/assets/65370f7d-4e88-4bc7-a4df-ca550e375b0d" />
+
 
 ## Roadmap
 
