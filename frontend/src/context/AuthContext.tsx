@@ -25,7 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (storedToken) {
         setToken(storedToken);
         try {
-          const profile = await getUserProfile(storedToken);
+          const profile = await getUserProfile();
           setUser(profile);
         } catch (error) {
           console.error("Failed to fetch user profile", error);
@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('authToken', newToken);
     setToken(newToken);
     try {
-      const profile = await getUserProfile(newToken);
+      const profile = await getUserProfile();
       setUser(profile);
     } catch (error) {
       console.error("Failed to fetch profile after login", error);
