@@ -23,7 +23,15 @@ export const queryConceptNetByConcept = async (lang: string, concept: string, li
         });
         return response.data;
     } catch (error) {
-        console.error('Error querying ConceptNet API:', error);
+        if (axios.isAxiosError(error) && error.response) {
+            console.error('Error querying ConceptNet API:', {
+                status: error.response.status,
+                data: error.response.data,
+                config: error.config,
+            });
+        } else {
+            console.error('An unexpected error occurred:', error);
+        }
         throw new Error('Failed to fetch data from ConceptNet.');
     }
 };
