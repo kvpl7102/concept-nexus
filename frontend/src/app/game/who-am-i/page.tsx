@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { startWhoAmIGame, searchConcept } from '@/services/api';
+import { startWhoAmIGame, searchConcept, getUserProfile } from '@/services/api';
 import { Concept, ConceptNetEdge } from '@/lib/types';
 import styles from './page.module.css';
 
-const GAME_DURATION = 60; // seconds
-const CLUE_INTERVAL = 10; // seconds
+const GAME_DURATION = 60; 
+const CLUE_INTERVAL = 10; 
 
 type GameState = 'idle' | 'playing' | 'won' | 'lost';
 
@@ -22,6 +22,8 @@ export default function WhoAmIPage() {
   const [timer, setTimer] = useState(GAME_DURATION);
   const [userGuess, setUserGuess] = useState('');
   const [score, setScore] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Fetch and process clues when a new game starts
   useEffect(() => {
@@ -34,8 +36,8 @@ export default function WhoAmIPage() {
           .filter(edge => edge.start.language === 'en' && edge.end.language === 'en') 
           .map(edge => {
             const newEdge = JSON.parse(JSON.stringify(edge)); 
-            let startIsAnswer = newEdge.start.label.toLowerCase() === conceptToGuess.label.toLowerCase();
-            let endIsAnswer = newEdge.end.label.toLowerCase() === conceptToGuess.label.toLowerCase();
+            let startIsAnswer = newEdge.start.label.toLowerCase().includes(conceptToGuess.label.toLowerCase());
+            let endIsAnswer = newEdge.end.label.toLowerCase().includes(conceptToGuess.label.toLowerCase());
 
             if (startIsAnswer) newEdge.start.label = '???';
             if (endIsAnswer) newEdge.end.label = '???';
@@ -45,11 +47,11 @@ export default function WhoAmIPage() {
           
           setClues(transformedClues);
 
-          if (transformedClues.length > 0) {
-            setRevealedClues([transformedClues[0]]);
-          }
+          setRevealedClues([transformedClues[0]]);
         } catch (error) {
           console.error("Failed to fetch clues", error);
+          setError("Failed to fetch clues for the concept. Please try starting a new game.");
+          setGameState('idle');
         }
       };
       fetchAndProcessClues();
@@ -73,7 +75,13 @@ export default function WhoAmIPage() {
     
       if (shouldRevealClue && clues.length > revealedClues.length) {
          if(timer < GAME_DURATION){
-             setRevealedClues(prev => [...prev, clues[prev.length]]);
+            setRevealedClues(prev => {
+                const nextClue = clues[prev.length];
+                if (nextClue) {
+                    return [...prev, nextClue];
+                }
+                return prev;
+            });
          }
       }
     }, 1000);
@@ -82,27 +90,39 @@ export default function WhoAmIPage() {
   }, [gameState, timer, clues, revealedClues.length]);
 
   const handleStartGame = async () => {
-    if (!token) return;
+    if (!token || isLoading) return;
+    
+    setIsLoading(true);
+    setError(null);
     setGameState('playing');
     setTimer(GAME_DURATION);
     setClues([]);
     setRevealedClues([]);
     setUserGuess('');
     setScore(0);
-    setConceptToGuess(null); 
-    const { conceptToGuess } = await startWhoAmIGame(token);
-    setConceptToGuess(conceptToGuess);
+    setConceptToGuess(null);
+
+    try {
+      const { conceptToGuess } = await startWhoAmIGame(token);
+      setConceptToGuess(conceptToGuess);
+    } catch (err) {
+      console.error("Failed to start a new game.", err);
+      setError("Sorry, we couldn't start a new game. Please try again.");
+      setGameState('idle');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleGuessSubmit = (e: React.FormEvent) => {
+  const handleGuessSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (userGuess.trim().toLowerCase() === conceptToGuess?.label.toLowerCase()) {
       const calculatedScore = timer + (clues.length - revealedClues.length) * 5;
       setScore(calculatedScore);
       setGameState('won');
     } else {
-      setUserGuess('');
-      alert('Incorrect, try again!');
+        setUserGuess('');
+        alert('Incorrect, try again!');
     }
   };
 
@@ -114,14 +134,21 @@ export default function WhoAmIPage() {
       <h1>Game: Who Am I?</h1>
       
       {gameState === 'idle' && (
-        <button onClick={handleStartGame} className={styles.button}>Start New Game</button>
+        <div>
+          <button onClick={handleStartGame} className={styles.button} disabled={isLoading}>
+            {isLoading ? 'Starting...' : 'Start New Game'}
+          </button>
+          {error && <p className={styles.error}>{error}</p>}
+        </div>
       )}
 
       {(gameState === 'won' || gameState === 'lost') && (
         <div className={styles.gameOver}>
           <h2>{gameState === 'won' ? `You won! You scored ${score} points!` : 'Time\'s up! You lost.'}</h2>
           <p>The concept was: <strong>{conceptToGuess?.label}</strong></p>
-          <button onClick={handleStartGame} className={styles.button}>Play Again</button>
+          <button onClick={handleStartGame} className={styles.button} disabled={isLoading}>
+            {isLoading ? 'Starting...' : 'Play Again'}
+          </button>
         </div>
       )}
 
@@ -157,4 +184,5 @@ export default function WhoAmIPage() {
     </main>
   );
 }
+
 
